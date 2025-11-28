@@ -14,6 +14,8 @@
         /* 스크롤바 숨기기 */
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        /* 단어 단위 줄바꿈 적용 */
+        * { word-break: keep-all; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
@@ -28,13 +30,13 @@
         <!-- 1. Start Screen -->
         <div id="startScreen" class="flex-1 flex flex-col items-center justify-center p-6 text-center fade-in">
             <div class="text-5xl mb-4">🌡️</div>
-            <h1 class="text-2xl font-black text-gray-900 mb-2">사랑의 온도 측정기</h1>
-            <p class="text-gray-500 mb-8 text-sm leading-relaxed">
+            <h1 class="text-2xl font-black text-gray-900 mb-2 break-keep">사랑의 온도 측정기</h1>
+            <p class="text-gray-500 mb-8 text-sm leading-relaxed break-keep">
                 나의 사랑 유형은 몇 도일까요?<br><br>
                 간단한 테스트로 나를 알아보고<br>
                 나에게 딱 맞는 강연과 연사를 추천받아보세요.
             </p>
-            <button onclick="startQuiz()" class="bg-black text-white px-8 py-4 rounded-xl text-lg font-bold w-full shadow-lg hover:bg-gray-800 transition active:scale-95">
+            <button onclick="startQuiz()" class="bg-black text-white px-8 py-4 rounded-xl text-lg font-bold w-full shadow-lg hover:bg-gray-800 transition active:scale-95 break-keep">
                 테스트 시작하기
             </button>
         </div>
@@ -42,8 +44,8 @@
         <!-- 2. Quiz Screen -->
         <div id="quizScreen" class="hidden flex-1 flex-col p-6 fade-in h-full justify-center">
             <div class="mb-6">
-                <span id="questionNumber" class="text-purple-600 font-bold text-xs tracking-widest uppercase mb-1 block">QUESTION 1/3</span>
-                <h2 id="questionText" class="text-xl font-bold text-gray-900 leading-snug">질문이 들어갑니다.</h2>
+                <span id="questionNumber" class="text-purple-600 font-bold text-xs tracking-widest uppercase mb-1 block break-keep">QUESTION 1/3</span>
+                <h2 id="questionText" class="text-xl font-bold text-gray-900 leading-snug break-keep">질문이 들어갑니다.</h2>
             </div>
             <div id="optionsContainer" class="space-y-2.5">
                 <!-- Buttons will be injected here -->
@@ -51,7 +53,7 @@
             
             <!-- Previous Button -->
             <div class="mt-6">
-                <button id="prevBtn" onclick="prevStep()" class="text-gray-400 text-sm font-medium hover:text-gray-600 flex items-center gap-1 invisible">
+                <button id="prevBtn" onclick="prevStep()" class="text-gray-400 text-sm font-medium hover:text-gray-600 flex items-center gap-1 invisible break-keep">
                     <span>←</span> 이전 문제
                 </button>
             </div>
@@ -60,18 +62,18 @@
         <!-- 3. Result Screen -->
         <div id="resultScreen" class="hidden flex-1 flex-col p-6 overflow-y-auto fade-in scrollbar-hide">
             <div class="text-center mb-5">
-                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Your Temperature</span>
-                <div id="resultTemp" class="text-6xl font-black text-gray-900 my-2 tracking-tighter">-273°C</div>
-                <h2 id="resultTitle" class="text-xl font-bold text-purple-800">결과 제목</h2>
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider break-keep">Your Temperature</span>
+                <div id="resultTemp" class="text-6xl font-black text-gray-900 my-2 tracking-tighter break-keep">-273°C</div>
+                <h2 id="resultTitle" class="text-xl font-bold text-purple-800 break-keep">결과 제목</h2>
             </div>
 
             <!-- 설명 영역 -->
             <div class="mb-6">
                 <div class="bg-white/60 p-5 rounded-xl border border-gray-100 shadow-sm text-left">
-                    <h4 id="resultHeadline" class="text-lg font-bold text-gray-900 mb-2 leading-snug">
+                    <h4 id="resultHeadline" class="text-lg font-bold text-gray-900 mb-2 leading-snug break-keep">
                         <!-- 첫 문장 강조 -->
                     </h4>
-                    <p id="resultDetail" class="text-gray-700 text-sm leading-relaxed">
+                    <p id="resultDetail" class="text-gray-700 text-sm leading-relaxed break-keep">
                         <!-- 나머지 설명 -->
                     </p>
                 </div>
@@ -79,26 +81,27 @@
 
             <!-- 연사 추천 영역 -->
             <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 mb-6 text-center relative overflow-hidden">
-                <!-- 그라데이션 색상 변경: 어두운 색 제거, 쨍한 원색(Blue-400, Green-400, Yellow-400, Red-500) 사용 -->
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-green-400 via-yellow-400 to-red-500"></div>
                 
-                <span class="inline-block px-3 py-1 bg-gray-100 text-gray-500 text-[10px] font-bold tracking-widest uppercase rounded-full mb-3">
+                <span class="inline-block px-3 py-1 bg-gray-100 text-gray-500 text-[10px] font-bold tracking-widest uppercase rounded-full mb-3 break-keep">
                     Recommended Session
                 </span>
                 
-                <h3 class="text-sm text-gray-400 font-medium mb-1">나를 위한 맞춤 연사</h3>
-                <p id="resultSpeaker" class="text-2xl font-black text-gray-900 mb-4 tracking-tight"></p>
+                <h3 class="text-sm text-gray-400 font-medium mb-1 break-keep">나를 위한 맞춤 연사</h3>
+                <p id="resultSpeaker" class="text-2xl font-black text-gray-900 mb-4 tracking-tight break-keep"></p>
                 
-                <div class="bg-gray-50 rounded-xl p-3 border border-gray-100 relative">
-                    <span class="absolute -top-2 left-4 text-2xl text-gray-300">"</span>
-                    <p id="resultAdvice" class="text-gray-600 text-sm font-medium italic relative z-10">
-                        "멘트"
+                <!-- 멘트 영역 (수정됨: 큰따옴표 추가) -->
+                <div class="bg-gray-50 rounded-xl p-6 border border-gray-100 relative">
+                    <span class="absolute top-2 left-3 text-4xl text-gray-300 leading-none">“</span>
+                    <p id="resultAdvice" class="text-gray-600 text-sm font-medium italic relative z-10 px-2 break-keep">
+                        멘트
                     </p>
+                    <span class="absolute bottom-1 right-3 text-4xl text-gray-300 leading-none">”</span>
                 </div>
             </div>
 
             <div class="mt-auto">
-                <button onclick="resetQuiz()" class="w-full bg-gray-900 text-white py-4 rounded-xl font-bold text-base hover:bg-gray-800 transition shadow-lg btn-hover">
+                <button onclick="resetQuiz()" class="w-full bg-gray-900 text-white py-4 rounded-xl font-bold text-base hover:bg-gray-800 transition shadow-lg btn-hover break-keep">
                     처음으로 돌아가기
                 </button>
             </div>
@@ -224,7 +227,7 @@
 
             shuffledOptions.forEach((opt) => {
                 const btn = document.createElement('button');
-                btn.className = "w-full text-left px-4 py-3.5 rounded-xl border border-gray-200 bg-white hover:border-black hover:bg-gray-50 transition duration-150 text-gray-800 font-medium text-sm btn-hover flex justify-between items-center group";
+                btn.className = "w-full text-left px-4 py-3.5 rounded-xl border border-gray-200 bg-white hover:border-black hover:bg-gray-50 transition duration-150 text-gray-800 font-medium text-sm btn-hover flex justify-between items-center group break-keep";
                 btn.innerHTML = `<span>${opt.text}</span> <span class="text-gray-300 group-hover:text-black transition">→</span>`;
                 btn.onclick = () => selectOption(opt.type);
                 container.appendChild(btn);
@@ -279,23 +282,23 @@
             document.getElementById('resultHeadline').innerText = data.headline;
             document.getElementById('resultDetail').innerText = data.detail;
             document.getElementById('resultSpeaker').innerText = data.speaker;
-            document.getElementById('resultAdvice').innerText = `"${data.advice}"`;
+            // [수정] 멘트에서 따옴표 제거하고 텍스트만 삽입
+            document.getElementById('resultAdvice').innerText = data.advice;
 
             const tempEl = document.getElementById('resultTemp');
             const appEl = document.getElementById('app');
             const titleEl = document.getElementById('resultTitle');
 
-            // [변경] 색의 온도 스펙트럼에 따른 색상 매핑 (블루 -> 틸 -> 앰버 -> 오렌지 -> 레드)
             const colorMap = {
-                'zero': { text: 'text-blue-700', title: 'text-blue-800', bg: 'from-blue-200' },     // -273 (Cold Blue)
-                'four': { text: 'text-teal-700', title: 'text-teal-800', bg: 'from-teal-200' },     // 4 (Cool Teal/Green)
-                'human': { text: 'text-amber-600', title: 'text-amber-700', bg: 'from-amber-200' }, // 36.5 (Warm Amber/Yellow)
-                'forty': { text: 'text-orange-600', title: 'text-orange-700', bg: 'from-orange-200' }, // 40 (Hot Orange)
-                'hundred': { text: 'text-red-700', title: 'text-red-800', bg: 'from-red-200' }      // 100 (Boiling Red)
+                'zero': { text: 'text-blue-700', title: 'text-blue-800', bg: 'from-blue-200' },
+                'four': { text: 'text-teal-700', title: 'text-teal-800', bg: 'from-teal-200' },
+                'human': { text: 'text-amber-600', title: 'text-amber-700', bg: 'from-amber-200' },
+                'forty': { text: 'text-orange-600', title: 'text-orange-700', bg: 'from-orange-200' },
+                'hundred': { text: 'text-red-700', title: 'text-red-800', bg: 'from-red-200' }
             };
 
-            tempEl.className = `text-6xl font-black my-2 tracking-tighter ${colorMap[maxType].text}`;
-            titleEl.className = `text-xl font-bold ${colorMap[maxType].title}`;
+            tempEl.className = `text-6xl font-black my-2 tracking-tighter break-keep ${colorMap[maxType].text}`;
+            titleEl.className = `text-xl font-bold break-keep ${colorMap[maxType].title}`;
 
             appEl.classList.remove('bg-white');
             appEl.className = `max-w-md w-full rounded-2xl shadow-xl overflow-hidden min-h-[500px] flex flex-col relative border border-gray-100 bg-gradient-to-t to-white ${colorMap[maxType].bg}`;
