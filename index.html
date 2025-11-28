@@ -88,15 +88,30 @@
                 </span>
                 
                 <h3 class="text-sm text-gray-400 font-medium mb-1 break-keep">나를 위한 맞춤 연사</h3>
-                <p id="resultSpeaker" class="text-2xl font-black text-gray-900 mb-4 tracking-tight break-keep"></p>
+                <p id="resultSpeaker" class="text-2xl font-black text-gray-900 mb-6 tracking-tight break-keep"></p>
                 
-                <!-- 멘트 영역 (수정됨: 큰따옴표 추가) -->
-                <div class="bg-gray-50 rounded-xl p-6 border border-gray-100 relative">
-                    <span class="absolute top-2 left-3 text-4xl text-gray-300 leading-none">“</span>
-                    <p id="resultAdvice" class="text-gray-600 text-sm font-medium italic relative z-10 px-2 break-keep">
+                <!-- 멘트 영역 (리디자인: 실선 대칭 정렬) -->
+                <div class="mb-2 px-1">
+                    <!-- 상단: 따옴표 + 실선 + (투명 따옴표) -->
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="text-6xl font-serif text-black leading-[0] pt-4">“</span>
+                        <div class="h-px bg-gray-300 flex-1"></div>
+                        <!-- 대칭을 위한 투명 따옴표 -->
+                        <span class="text-6xl font-serif text-transparent leading-[0] pt-4 select-none">”</span>
+                    </div>
+
+                    <!-- 멘트 -->
+                    <p id="resultAdvice" class="text-gray-800 text-base font-medium leading-relaxed px-4 italic break-keep">
                         멘트
                     </p>
-                    <span class="absolute bottom-1 right-3 text-4xl text-gray-300 leading-none">”</span>
+                    
+                    <!-- 하단: (투명 따옴표) + 실선 + 따옴표 -->
+                    <div class="flex items-center gap-3 mt-4">
+                        <!-- 대칭을 위한 투명 따옴표 -->
+                        <span class="text-6xl font-serif text-transparent leading-[0] pt-4 select-none">“</span>
+                        <div class="h-px bg-gray-300 flex-1"></div>
+                        <span class="text-6xl font-serif text-black leading-[0] pt-4">”</span>
+                    </div>
                 </div>
             </div>
 
@@ -282,7 +297,6 @@
             document.getElementById('resultHeadline').innerText = data.headline;
             document.getElementById('resultDetail').innerText = data.detail;
             document.getElementById('resultSpeaker').innerText = data.speaker;
-            // [수정] 멘트에서 따옴표 제거하고 텍스트만 삽입
             document.getElementById('resultAdvice').innerText = data.advice;
 
             const tempEl = document.getElementById('resultTemp');
