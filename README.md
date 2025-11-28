@@ -1,1 +1,316 @@
-# temperature-test
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사랑의 온도 측정기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .btn-hover:active { transform: scale(0.98); background-color: #f3f4f6; }
+        /* 스크롤바 숨기기 */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+
+    <div id="app" class="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden min-h-[500px] flex flex-col relative border border-gray-100">
+        
+        <!-- Progress Bar -->
+        <div id="progressBarContainer" class="hidden w-full bg-gray-100 h-1.5">
+            <div id="progressBar" class="bg-black h-1.5 transition-all duration-200" style="width: 0%"></div>
+        </div>
+
+        <!-- 1. Start Screen -->
+        <div id="startScreen" class="flex-1 flex flex-col items-center justify-center p-6 text-center fade-in">
+            <div class="text-5xl mb-4">🌡️</div>
+            <h1 class="text-2xl font-black text-gray-900 mb-2">사랑의 온도 측정기</h1>
+            <p class="text-gray-500 mb-8 text-sm leading-relaxed">
+                나의 사랑 유형은 몇 도일까요?<br><br>
+                간단한 테스트로 나를 알아보고<br>
+                나에게 딱 맞는 강연과 연사를 추천받아보세요.
+            </p>
+            <button onclick="startQuiz()" class="bg-black text-white px-8 py-4 rounded-xl text-lg font-bold w-full shadow-lg hover:bg-gray-800 transition active:scale-95">
+                테스트 시작하기
+            </button>
+        </div>
+
+        <!-- 2. Quiz Screen -->
+        <div id="quizScreen" class="hidden flex-1 flex-col p-6 fade-in h-full justify-center">
+            <div class="mb-6">
+                <span id="questionNumber" class="text-purple-600 font-bold text-xs tracking-widest uppercase mb-1 block">QUESTION 1/3</span>
+                <h2 id="questionText" class="text-xl font-bold text-gray-900 leading-snug">질문이 들어갑니다.</h2>
+            </div>
+            <div id="optionsContainer" class="space-y-2.5">
+                <!-- Buttons will be injected here -->
+            </div>
+            
+            <!-- Previous Button -->
+            <div class="mt-6">
+                <button id="prevBtn" onclick="prevStep()" class="text-gray-400 text-sm font-medium hover:text-gray-600 flex items-center gap-1 invisible">
+                    <span>←</span> 이전 문제
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. Result Screen -->
+        <div id="resultScreen" class="hidden flex-1 flex-col p-6 overflow-y-auto fade-in scrollbar-hide">
+            <div class="text-center mb-5">
+                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Your Temperature</span>
+                <div id="resultTemp" class="text-6xl font-black text-gray-900 my-2 tracking-tighter">-273°C</div>
+                <h2 id="resultTitle" class="text-xl font-bold text-purple-800">결과 제목</h2>
+            </div>
+
+            <!-- 설명 영역 -->
+            <div class="mb-6">
+                <div class="bg-white/60 p-5 rounded-xl border border-gray-100 shadow-sm text-left">
+                    <h4 id="resultHeadline" class="text-lg font-bold text-gray-900 mb-2 leading-snug">
+                        <!-- 첫 문장 강조 -->
+                    </h4>
+                    <p id="resultDetail" class="text-gray-700 text-sm leading-relaxed">
+                        <!-- 나머지 설명 -->
+                    </p>
+                </div>
+            </div>
+
+            <!-- 연사 추천 영역 -->
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 mb-6 text-center relative overflow-hidden">
+                <!-- 그라데이션 색상 변경: 어두운 색 제거, 쨍한 원색(Blue-400, Green-400, Yellow-400, Red-500) 사용 -->
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-green-400 via-yellow-400 to-red-500"></div>
+                
+                <span class="inline-block px-3 py-1 bg-gray-100 text-gray-500 text-[10px] font-bold tracking-widest uppercase rounded-full mb-3">
+                    Recommended Session
+                </span>
+                
+                <h3 class="text-sm text-gray-400 font-medium mb-1">나를 위한 맞춤 연사</h3>
+                <p id="resultSpeaker" class="text-2xl font-black text-gray-900 mb-4 tracking-tight"></p>
+                
+                <div class="bg-gray-50 rounded-xl p-3 border border-gray-100 relative">
+                    <span class="absolute -top-2 left-4 text-2xl text-gray-300">"</span>
+                    <p id="resultAdvice" class="text-gray-600 text-sm font-medium italic relative z-10">
+                        "멘트"
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-auto">
+                <button onclick="resetQuiz()" class="w-full bg-gray-900 text-white py-4 rounded-xl font-bold text-base hover:bg-gray-800 transition shadow-lg btn-hover">
+                    처음으로 돌아가기
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Updated Questions ---
+        const questions = [
+            {
+                q: "내가 생각하는 '사랑'의 이미지는?", 
+                a: [
+                    { text: "뿌리 깊은 나무", type: "zero" },
+                    { text: "깊은 심해", type: "four" },
+                    { text: "따스한 햇살", type: "human" },
+                    { text: "한여름 밤의 불꽃", type: "forty" },
+                    { text: "흐르는 강물", type: "hundred" }
+                ]
+            },
+            {
+                q: "내가 깊은 유대감을 느끼는 '좋은 사람'은?",
+                a: [
+                    { text: "변함없이 내 곁을 지켜주는 든든한 사람", type: "zero" },
+                    { text: "말하지 않아도 영혼이 통하는 섬세한 사람", type: "four" },
+                    { text: "밥 한 끼에도 같이 웃을 수 있는 편안한 사람", type: "human" },
+                    { text: "나에게 낯선 자극과 영감을 주는 사람", type: "forty" },
+                    { text: "함께 더 나은 미래를 꿈꾸며 성장하는 사람", type: "hundred" }
+                ]
+            },
+            {
+                q: "마음이 지치고 힘들 때, 상대방에게 바라는 위로는?",
+                a: [
+                    { text: "말없이 곁을 지키며 기댈 어깨를 내어주는 것", type: "zero" },
+                    { text: "나의 복잡한 감정을 깊이 이해하고 공감해주는 것", type: "four" },
+                    { text: "소소한 농담이나 맛있는 음식으로 웃게 해주는 것", type: "human" },
+                    { text: "기분 전환이 되도록 새로운 곳으로 이끌어주는 것", type: "forty" },
+                    { text: "문제 해결을 위해 실질적인 조언과 도움을 주는 것", type: "hundred" }
+                ]
+            }
+        ];
+
+        // [수정] headline(첫문장)과 detail(나머지)로 데이터 분리
+        const results = {
+            "zero": {
+                temp: "-273.15°C",
+                title: "절대영도의 순애보",
+                headline: "당신에게 사랑은 화려한 이벤트보다 변치 않는 신뢰와 헌신입니다.",
+                detail: "묵묵히 곁을 지켜주는 단단한 사랑의 본질을 중요하게 생각하시네요.",
+                speaker: "강창래 작가",
+                advice: "상실 앞에서도 무너지지 않는 돌봄의 미학"
+            },
+            "four": {
+                temp: "4°C",
+                title: "가장 무거운 밀도",
+                headline: "남들은 쉽게 이해 못할 독특한 감성을 지녔습니다.",
+                detail: "가벼운 관계보다는 영혼을 울리는 깊이 있는 교감을 추구하며, 사랑을 예술처럼 섬세하게 다룹니다.",
+                speaker: "이정우 에디터",
+                advice: "예술로 승화된 사랑의 결정적 순간들"
+            },
+            "human": {
+                temp: "36.5°C",
+                title: "따뜻한 체온",
+                headline: "가장 인간적이고 편안한 사랑을 추구합니다.",
+                detail: "거창한 것보다는 일상에서 서로의 체온을 나누며 느끼는 소소한 안정감과 유대가 중요합니다.",
+                speaker: "김영대 평론가",
+                advice: "노래 가사처럼 우리의 마음을 울리는 공감"
+            },
+            "forty": {
+                temp: "40°C",
+                title: "뜨거운 미열",
+                headline: "사랑은 뜨거워야 제맛입니다!",
+                detail: "밋밋하고 지루한 관계보다는 서로에게 끊임없이 긍정적인 자극과 영감을 주고받는 열정적인 관계를 선호합니다.",
+                speaker: "윤복실 교수",
+                advice: "우리를 들끓게 하는 미디어 속 사랑의 이면"
+            },
+            "hundred": {
+                temp: "100°C",
+                title: "끓어오르는 비등점",
+                headline: "사랑은 명사가 아니라 동사입니다!",
+                detail: "마음만 먹는 게 아니라 함께 성장하고, 더 나아가 세상에 선한 영향력을 끼치는 '확장형 사랑'을 꿈꿉니다.",
+                speaker: "엠마 캠벨 총장",
+                advice: "사랑을 행동으로 옮기는 뜨거운 실천"
+            }
+        };
+
+        // --- Logic ---
+        let currentStep = 0;
+        let userAnswers = []; 
+
+        const startScreen = document.getElementById('startScreen');
+        const quizScreen = document.getElementById('quizScreen');
+        const resultScreen = document.getElementById('resultScreen');
+        const progressBar = document.getElementById('progressBar');
+        const progressBarContainer = document.getElementById('progressBarContainer');
+        const prevBtn = document.getElementById('prevBtn');
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function startQuiz() {
+            startScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            quizScreen.classList.add('flex');
+            progressBarContainer.classList.remove('hidden');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = questions[currentStep];
+            document.getElementById('questionNumber').innerText = `QUESTION ${currentStep + 1}/3`;
+            document.getElementById('questionText').innerText = q.q;
+            
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            const shuffledOptions = shuffleArray([...q.a]);
+
+            shuffledOptions.forEach((opt) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left px-4 py-3.5 rounded-xl border border-gray-200 bg-white hover:border-black hover:bg-gray-50 transition duration-150 text-gray-800 font-medium text-sm btn-hover flex justify-between items-center group";
+                btn.innerHTML = `<span>${opt.text}</span> <span class="text-gray-300 group-hover:text-black transition">→</span>`;
+                btn.onclick = () => selectOption(opt.type);
+                container.appendChild(btn);
+            });
+
+            const progress = ((currentStep) / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            if (currentStep > 0) {
+                prevBtn.classList.remove('invisible');
+            } else {
+                prevBtn.classList.add('invisible');
+            }
+        }
+
+        function selectOption(type) {
+            userAnswers[currentStep] = type;
+            currentStep++;
+
+            if (currentStep < questions.length) {
+                renderQuestion();
+            } else {
+                progressBar.style.width = '100%';
+                showResult();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                renderQuestion();
+            }
+        }
+
+        function showResult() {
+            quizScreen.classList.add('hidden');
+            quizScreen.classList.remove('flex');
+            resultScreen.classList.remove('hidden');
+            resultScreen.classList.add('flex');
+            progressBarContainer.classList.add('hidden');
+
+            let scores = { zero: 0, four: 0, human: 0, forty: 0, hundred: 0 };
+            userAnswers.forEach(type => {
+                if(type) scores[type]++;
+            });
+
+            let maxType = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+            
+            const data = results[maxType];
+            document.getElementById('resultTitle').innerText = data.title;
+            document.getElementById('resultTemp').innerText = data.temp;
+            document.getElementById('resultHeadline').innerText = data.headline;
+            document.getElementById('resultDetail').innerText = data.detail;
+            document.getElementById('resultSpeaker').innerText = data.speaker;
+            document.getElementById('resultAdvice').innerText = `"${data.advice}"`;
+
+            const tempEl = document.getElementById('resultTemp');
+            const appEl = document.getElementById('app');
+            const titleEl = document.getElementById('resultTitle');
+
+            // [변경] 색의 온도 스펙트럼에 따른 색상 매핑 (블루 -> 틸 -> 앰버 -> 오렌지 -> 레드)
+            const colorMap = {
+                'zero': { text: 'text-blue-700', title: 'text-blue-800', bg: 'from-blue-200' },     // -273 (Cold Blue)
+                'four': { text: 'text-teal-700', title: 'text-teal-800', bg: 'from-teal-200' },     // 4 (Cool Teal/Green)
+                'human': { text: 'text-amber-600', title: 'text-amber-700', bg: 'from-amber-200' }, // 36.5 (Warm Amber/Yellow)
+                'forty': { text: 'text-orange-600', title: 'text-orange-700', bg: 'from-orange-200' }, // 40 (Hot Orange)
+                'hundred': { text: 'text-red-700', title: 'text-red-800', bg: 'from-red-200' }      // 100 (Boiling Red)
+            };
+
+            tempEl.className = `text-6xl font-black my-2 tracking-tighter ${colorMap[maxType].text}`;
+            titleEl.className = `text-xl font-bold ${colorMap[maxType].title}`;
+
+            appEl.classList.remove('bg-white');
+            appEl.className = `max-w-md w-full rounded-2xl shadow-xl overflow-hidden min-h-[500px] flex flex-col relative border border-gray-100 bg-gradient-to-t to-white ${colorMap[maxType].bg}`;
+        }
+
+        function resetQuiz() {
+            currentStep = 0;
+            userAnswers = [];
+            resultScreen.classList.add('hidden');
+            resultScreen.classList.remove('flex');
+            startScreen.classList.remove('hidden');
+
+            const appEl = document.getElementById('app');
+            appEl.className = "max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden min-h-[500px] flex flex-col relative border border-gray-100";
+        }
+    </script>
+</body>
+</html>
