@@ -2,332 +2,252 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>사랑의 온도 측정기</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TEDxHanyangU: 나의 사랑 온도는?</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Noto Sans KR', sans-serif; }
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        .btn-hover:active { transform: scale(0.98); background-color: #f3f4f6; }
-        /* 스크롤바 숨기기 */
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-        /* 단어 단위 줄바꿈 적용 */
-        * { word-break: keep-all; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f3f4f6;
+            -webkit-tap-highlight-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 결과 테마: 사랑의 온도 컨셉에 맞춘 컬러 */
+        .result-100 { background: linear-gradient(135deg, #FF0844 0%, #FFB199 100%); } /* 폭발하는 사랑 */
+        .result-70  { background: linear-gradient(135deg, #FF8008 0%, #FFC837 100%); } /* 썸/설렘 */
+        .result-36  { background: linear-gradient(135deg, #f7797d 0%, #FBD786 100%, #C6FFDD 100%); } /* 따뜻한 안정 (봄 느낌) */
+        .result-36-real { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); } /* 편안함 초록 */
+        .result-10  { background: linear-gradient(135deg, #0099F7 0%, #F11712 100%); } /* 이성과 감성 충돌? -> 쿨톤으로 변경 */
+        .result-cool { background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%); } /* 냉철한 분석 */
+        .result-0   { background: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%); } /* 깊은 침잠 */
+
+        .glass-box {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .break-keep {
+            word-break: keep-all;
+        }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+<body>
 
-    <div id="app" class="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden min-h-[500px] flex flex-col relative border border-gray-100">
+    <!-- max-w-md를 max-w-3xl로 변경하여 태블릿에서도 꽉 차게 변경, min-h도 조금 더 키움 -->
+    <div id="main-card" class="w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden transition-all duration-500 relative min-h-[600px] flex flex-col">
         
-        <!-- Progress Bar -->
-        <div id="progressBarContainer" class="hidden w-full bg-gray-100 h-1.5">
-            <div id="progressBar" class="bg-black h-1.5 transition-all duration-200" style="width: 0%"></div>
+        <!-- 진행바 -->
+        <div id="progress-container" class="w-full h-3 bg-gray-100">
+            <div id="progress-bar" class="h-full bg-pink-500 transition-all duration-300" style="width: 0%"></div>
         </div>
 
-        <!-- 1. Start Screen -->
-        <div id="startScreen" class="flex-1 flex flex-col items-center justify-center p-6 text-center fade-in">
-            <div class="text-5xl mb-4">🌡️</div>
-            <h1 class="text-2xl font-black text-gray-900 mb-2 break-keep">사랑의 온도 측정기</h1>
-            <p class="text-gray-500 mb-8 text-sm leading-relaxed break-keep">
-                나의 사랑 유형은 몇 도일까요?<br><br>
-                간단한 테스트로 나를 알아보고<br>
-                나에게 딱 맞는 강연과 연사를 추천받아보세요.
-            </p>
-            <button onclick="startQuiz()" class="bg-black text-white px-8 py-4 rounded-xl text-lg font-bold w-full shadow-lg hover:bg-gray-800 transition active:scale-95 break-keep">
-                테스트 시작하기
-            </button>
-        </div>
-
-        <!-- 2. Quiz Screen -->
-        <div id="quizScreen" class="hidden flex-1 flex-col p-6 fade-in h-full justify-center">
-            <div class="mb-6">
-                <span id="questionNumber" class="text-purple-600 font-bold text-xs tracking-widest uppercase mb-1 block break-keep">QUESTION 1/3</span>
-                <h2 id="questionText" class="text-xl font-bold text-gray-900 leading-snug break-keep">질문이 들어갑니다.</h2>
+        <!-- 질문 섹션 -->
+        <div id="quiz-section" class="flex-1 p-6 md:p-12 flex flex-col justify-center">
+            <div class="mb-6 text-center">
+                <span class="text-sm md:text-base font-bold text-pink-500 tracking-widest uppercase">Love Temperature Test</span>
             </div>
-            <div id="optionsContainer" class="space-y-2.5">
-                <!-- Buttons will be injected here -->
-            </div>
-            
-            <!-- Previous Button -->
-            <div class="mt-6">
-                <button id="prevBtn" onclick="prevStep()" class="text-gray-400 text-sm font-medium hover:text-gray-600 flex items-center gap-1 invisible break-keep">
-                    <span>←</span> 이전 문제
-                </button>
+            <div id="question-container" class="fade-in">
+                <!-- JS 주입 -->
             </div>
         </div>
 
-        <!-- 3. Result Screen -->
-        <div id="resultScreen" class="hidden flex-1 flex-col p-6 overflow-y-auto fade-in scrollbar-hide">
-            <div class="text-center mb-5">
-                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider break-keep">Your Temperature</span>
-                <div id="resultTemp" class="text-6xl font-black text-gray-900 my-2 tracking-tighter break-keep">-273°C</div>
-                <h2 id="resultTitle" class="text-xl font-bold text-purple-800 break-keep">결과 제목</h2>
-            </div>
-
-            <!-- 설명 영역 -->
-            <div class="mb-6">
-                <div class="bg-white/60 p-5 rounded-xl border border-gray-100 shadow-sm text-left">
-                    <h4 id="resultHeadline" class="text-lg font-bold text-gray-900 mb-2 leading-snug break-keep">
-                        <!-- 첫 문장 강조 -->
-                    </h4>
-                    <p id="resultDetail" class="text-gray-700 text-sm leading-relaxed break-keep">
-                        <!-- 나머지 설명 -->
-                    </p>
-                </div>
-            </div>
-
-            <!-- 연사 추천 영역 -->
-            <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-200 mb-6 text-center relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-400 via-green-400 via-yellow-400 to-red-500"></div>
-                
-                <span class="inline-block px-3 py-1 bg-gray-100 text-gray-500 text-[10px] font-bold tracking-widest uppercase rounded-full mb-3 break-keep">
-                    Recommended Session
-                </span>
-                
-                <h3 class="text-sm text-gray-400 font-medium mb-1 break-keep">나를 위한 맞춤 연사</h3>
-                <p id="resultSpeaker" class="text-2xl font-black text-gray-900 mb-6 tracking-tight break-keep"></p>
-                
-                <!-- 멘트 영역 (리디자인: 실선 대칭 정렬) -->
-                <div class="mb-2 px-1">
-                    <!-- 상단: 따옴표 + 실선 + (투명 따옴표) -->
-                    <div class="flex items-center gap-3 mb-4">
-                        <span class="text-6xl font-serif text-black leading-[0] pt-4">“</span>
-                        <div class="h-px bg-gray-300 flex-1"></div>
-                        <!-- 대칭을 위한 투명 따옴표 -->
-                        <span class="text-6xl font-serif text-transparent leading-[0] pt-4 select-none">”</span>
-                    </div>
-
-                    <!-- 멘트 -->
-                    <p id="resultAdvice" class="text-gray-800 text-base font-medium leading-relaxed px-4 italic break-keep">
-                        멘트
-                    </p>
-                    
-                    <!-- 하단: (투명 따옴표) + 실선 + 따옴표 -->
-                    <div class="flex items-center gap-3 mt-4">
-                        <!-- 대칭을 위한 투명 따옴표 -->
-                        <span class="text-6xl font-serif text-transparent leading-[0] pt-4 select-none">“</span>
-                        <div class="h-px bg-gray-300 flex-1"></div>
-                        <span class="text-6xl font-serif text-black leading-[0] pt-4">”</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-auto">
-                <button onclick="resetQuiz()" class="w-full bg-gray-900 text-white py-4 rounded-xl font-bold text-base hover:bg-gray-800 transition shadow-lg btn-hover break-keep">
-                    처음으로 돌아가기
-                </button>
-            </div>
+        <!-- 결과 섹션 -->
+        <div id="result-section" class="hidden flex-1 flex flex-col items-center justify-center text-center p-8 md:p-12 text-white fade-in h-full">
+            <!-- JS 주입 -->
         </div>
 
     </div>
 
     <script>
-        // --- Updated Questions ---
+        // --- TEDxHanyangU '사랑의 온도' 맞춤형 질문 데이터 ---
         const questions = [
             {
-                q: "내가 생각하는 '사랑'의 이미지는?", 
-                a: [
-                    { text: "뿌리 깊은 나무", type: "zero" },
-                    { text: "깊은 심해", type: "four" },
-                    { text: "따스한 햇살", type: "human" },
-                    { text: "한여름 밤의 불꽃", type: "forty" },
-                    { text: "흐르는 강물", type: "hundred" }
+                id: 1,
+                text: "방금 1부 강연에서 '운명적인 사랑'에 대한 이야기를 들었습니다.<br>당신의 솔직한 생각은?",
+                options: [
+                    { text: "\"나에게도 저런 순간이 올까?\" 가슴이 두근거린다.", score: 10 },
+                    { text: "\"영화 같은 이야기네.\" 낭만적이지만 현실성은 따져본다.", score: 5 },
+                    { text: "\"사랑은 호르몬 작용일 뿐.\" 논리적으로 분석하며 듣는다.", score: 2 },
+                    { text: "\"피곤하다...\" 사실 내용보다는 휴식이 간절하다.", score: 0 }
                 ]
             },
             {
-                q: "내가 깊은 유대감을 느끼는 '좋은 사람'은?",
-                a: [
-                    { text: "변함없이 내 곁을 지켜주는 든든한 사람", type: "zero" },
-                    { text: "말하지 않아도 영혼이 통하는 섬세한 사람", type: "four" },
-                    { text: "밥 한 끼에도 같이 웃을 수 있는 편안한 사람", type: "human" },
-                    { text: "나에게 낯선 자극과 영감을 주는 사람", type: "forty" },
-                    { text: "함께 더 나은 미래를 꿈꾸며 성장하는 사람", type: "hundred" }
+                id: 2,
+                text: "지금은 인터미션(쉬는 시간)!<br>로비에서 우연히 이상형을 발견했다면?",
+                options: [
+                    { text: "놓칠 수 없다! 자연스럽게 다가가 말을 건다.", score: 10 },
+                    { text: "일단 친구에게 말하고, 눈을 마주치며 신호를 보낸다.", score: 5 },
+                    { text: "멀리서 지켜보다가, 인연이라면 다시 만나겠지 생각한다.", score: 2 },
+                    { text: "내 이상형이 맞나? 휴대폰을 보며 관심을 끈다.", score: 0 }
                 ]
             },
             {
-                q: "마음이 지치고 힘들 때, 상대방에게 바라는 위로는?",
-                a: [
-                    { text: "말없이 곁을 지키며 기댈 어깨를 내어주는 것", type: "zero" },
-                    { text: "나의 복잡한 감정을 깊이 이해하고 공감해주는 것", type: "four" },
-                    { text: "소소한 농담이나 맛있는 음식으로 웃게 해주는 것", type: "human" },
-                    { text: "기분 전환이 되도록 새로운 곳으로 이끌어주는 것", type: "forty" },
-                    { text: "문제 해결을 위해 실질적인 조언과 도움을 주는 것", type: "hundred" }
+                id: 3,
+                text: "곧 시작될 2부 강연,<br>당신이 기대하는 '사랑의 결말'은?",
+                options: [
+                    { text: "불타오르는 열정! 해피엔딩의 로맨스", score: 10 },
+                    { text: "잔잔한 위로와 공감, 편안한 동반자", score: 5 },
+                    { text: "사랑의 본질을 꿰뚫는 철학적인 통찰", score: 2 },
+                    { text: "결말보다는 나 자신을 사랑하는 법", score: 0 }
                 ]
             }
         ];
 
-        // [수정] headline(첫문장)과 detail(나머지)로 데이터 분리
-        const results = {
-            "zero": {
-                temp: "-273.15°C",
-                title: "절대영도의 순애보",
-                headline: "당신에게 사랑은 화려한 이벤트보다 변치 않는 신뢰와 헌신입니다.",
-                detail: "묵묵히 곁을 지켜주는 단단한 사랑의 본질을 중요하게 생각하시네요.",
-                speaker: "강창래 작가",
-                advice: "상실 앞에서도 무너지지 않는 돌봄의 미학"
+        // --- 결과 데이터 (강연 맥락 반영) ---
+        const results = [
+            { 
+                min: 0, max: 5, 
+                temp: "0℃", 
+                title: "나를 위한 쿨링 타임", 
+                theme: "result-0", 
+                desc: "지금 당신의 연애 세포는 겨울잠을 자고 있군요.<br>사랑보다는 <b>'나 자신'</b>에게 집중하고 싶은 상태입니다.<br><br>💡 <b>2부 관람 팁:</b><br>타인과의 사랑보다는, 강연자가 말하는 '자존감'과 '나를 사랑하는 법'에 귀 기울여보세요." 
             },
-            "four": {
-                temp: "4°C",
-                title: "가장 무거운 밀도",
-                headline: "남들은 쉽게 이해 못할 독특한 감성을 지녔습니다.",
-                detail: "가벼운 관계보다는 영혼을 울리는 깊이 있는 교감을 추구하며, 사랑을 예술처럼 섬세하게 다룹니다.",
-                speaker: "이정우 에디터",
-                advice: "예술로 승화된 사랑의 결정적 순간들"
+            { 
+                min: 6, max: 12, 
+                temp: "15℃", 
+                title: "냉철한 분석가", 
+                theme: "result-cool", 
+                desc: "감정에 휩쓸리기보다는 이성적으로 사랑을 바라보고 계시네요.<br>운명보다는 <b>데이터와 논리</b>를 신뢰합니다.<br><br>💡 <b>2부 관람 팁:</b><br>감동적인 스토리 속에서 '사랑의 사회학적 의미'나 '심리적 기제'를 찾아내는 재미를 느껴보세요." 
             },
-            "human": {
-                temp: "36.5°C",
-                title: "따뜻한 체온",
-                headline: "가장 인간적이고 편안한 사랑을 추구합니다.",
-                detail: "거창한 것보다는 일상에서 서로의 체온을 나누며 느끼는 소소한 안정감과 유대가 중요합니다.",
-                speaker: "김영대 평론가",
-                advice: "노래 가사처럼 우리의 마음을 울리는 공감"
+            { 
+                min: 13, max: 19, 
+                temp: "36.5℃", 
+                title: "따스한 설렘 주의보", 
+                theme: "result-36-real", 
+                desc: "사랑할 준비가 완벽하게 된 가장 건강한 온도입니다.<br>작은 계기만 있다면 금세 <b>사랑에 빠질 수 있어요.</b><br><br>💡 <b>2부 관람 팁:</b><br>마음을 활짝 열고 강연을 들어보세요. 오늘 들은 문장 하나가 당신의 다음 연애를 바꿀지도 모릅니다." 
             },
-            "forty": {
-                temp: "40°C",
-                title: "뜨거운 미열",
-                headline: "사랑은 뜨거워야 제맛입니다!",
-                detail: "밋밋하고 지루한 관계보다는 서로에게 끊임없이 긍정적인 자극과 영감을 주고받는 열정적인 관계를 선호합니다.",
-                speaker: "윤복실 교수",
-                advice: "우리를 들끓게 하는 미디어 속 사랑의 이면"
+            { 
+                min: 20, max: 25, 
+                temp: "70℃", 
+                title: "한여름의 썸", 
+                theme: "result-70", 
+                desc: "누군가와 연결되고 싶은 마음이 가득하군요!<br>당신의 주변에는 이미 <b>핑크빛 기류</b>가 흐르고 있습니다.<br><br>💡 <b>2부 관람 팁:</b><br>옆자리에 앉은 사람에게 '강연 어떠셨어요?'라고 가볍게 말을 걸어보는 건 어떨까요?" 
             },
-            "hundred": {
-                temp: "100°C",
-                title: "끓어오르는 비등점",
-                headline: "사랑은 명사가 아니라 동사입니다!",
-                detail: "마음만 먹는 게 아니라 함께 성장하고, 더 나아가 세상에 선한 영향력을 끼치는 '확장형 사랑'을 꿈꿉니다.",
-                speaker: "엠마 캠벨 총장",
-                advice: "사랑을 행동으로 옮기는 뜨거운 실천"
+            { 
+                min: 26, max: 30, 
+                temp: "100℃", 
+                title: "폭발하는 사랑의 용광로", 
+                theme: "result-100", 
+                desc: "지금 당신의 심장은 터질 듯이 뜨겁습니다!<br>운명적인 사랑을 쟁취할 <b>엄청난 에너지</b>를 가지고 계시군요.<br><br>💡 <b>2부 관람 팁:</b><br>강연자의 열정에 깊이 공감하며 에너지를 발산하세요! 오늘 이 자리의 주인공은 바로 당신입니다." 
             }
-        };
+        ];
 
-        // --- Logic ---
-        let currentStep = 0;
-        let userAnswers = []; 
+        let currentIdx = 0;
+        let totalScore = 0;
 
-        const startScreen = document.getElementById('startScreen');
-        const quizScreen = document.getElementById('quizScreen');
-        const resultScreen = document.getElementById('resultScreen');
-        const progressBar = document.getElementById('progressBar');
-        const progressBarContainer = document.getElementById('progressBarContainer');
-        const prevBtn = document.getElementById('prevBtn');
+        const mainCard = document.getElementById('main-card');
+        const quizSection = document.getElementById('quiz-section');
+        const resultSection = document.getElementById('result-section');
+        const questionContainer = document.getElementById('question-container');
+        const progressBar = document.getElementById('progress-bar');
+        const progressContainer = document.getElementById('progress-container');
 
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-
-        function startQuiz() {
-            startScreen.classList.add('hidden');
-            quizScreen.classList.remove('hidden');
-            quizScreen.classList.add('flex');
-            progressBarContainer.classList.remove('hidden');
-            renderQuestion();
-        }
-
-        function renderQuestion() {
-            const q = questions[currentStep];
-            document.getElementById('questionNumber').innerText = `QUESTION ${currentStep + 1}/3`;
-            document.getElementById('questionText').innerText = q.q;
-            
-            const container = document.getElementById('optionsContainer');
-            container.innerHTML = '';
-
-            const shuffledOptions = shuffleArray([...q.a]);
-
-            shuffledOptions.forEach((opt) => {
-                const btn = document.createElement('button');
-                btn.className = "w-full text-left px-4 py-3.5 rounded-xl border border-gray-200 bg-white hover:border-black hover:bg-gray-50 transition duration-150 text-gray-800 font-medium text-sm btn-hover flex justify-between items-center group break-keep";
-                btn.innerHTML = `<span>${opt.text}</span> <span class="text-gray-300 group-hover:text-black transition">→</span>`;
-                btn.onclick = () => selectOption(opt.type);
-                container.appendChild(btn);
-            });
-
-            const progress = ((currentStep) / questions.length) * 100;
+        function showQuestion() {
+            const progress = ((currentIdx + 1) / questions.length) * 100;
             progressBar.style.width = `${progress}%`;
 
-            if (currentStep > 0) {
-                prevBtn.classList.remove('invisible');
-            } else {
-                prevBtn.classList.add('invisible');
-            }
+            const q = questions[currentIdx];
+
+            let html = `
+                <div class="mb-8 md:mb-12">
+                    <span class="inline-block px-3 py-1 bg-pink-100 text-pink-600 text-xs md:text-sm font-bold rounded-full mb-3">
+                        Q${currentIdx + 1}.
+                    </span>
+                    <h2 class="text-2xl md:text-4xl font-bold text-gray-800 leading-snug break-keep">
+                        ${q.text}
+                    </h2>
+                </div>
+                <div class="flex flex-col gap-4">
+            `;
+
+            q.options.forEach((opt, idx) => {
+                html += `
+                    <button onclick="selectOption(${opt.score})" 
+                        class="w-full p-5 md:p-6 text-left border-2 border-gray-100 rounded-2xl hover:border-pink-400 hover:bg-pink-50 active:bg-pink-100 transition-all duration-200 group bg-white">
+                        <div class="flex items-center">
+                            <span class="w-8 h-8 md:w-10 md:h-10 flex-shrink-0 flex items-center justify-center rounded-full bg-gray-100 text-gray-500 font-bold mr-4 group-hover:bg-pink-500 group-hover:text-white transition-colors text-lg md:text-xl">
+                                ${String.fromCharCode(65 + idx)}
+                            </span>
+                            <span class="text-gray-700 font-medium text-lg md:text-2xl leading-snug break-keep">${opt.text}</span>
+                        </div>
+                    </button>
+                `;
+            });
+
+            html += `</div>`;
+            questionContainer.innerHTML = html;
         }
 
-        function selectOption(type) {
-            userAnswers[currentStep] = type;
-            currentStep++;
+        function selectOption(score) {
+            totalScore += score;
+            currentIdx++;
 
-            if (currentStep < questions.length) {
-                renderQuestion();
-            } else {
-                progressBar.style.width = '100%';
-                showResult();
-            }
-        }
-
-        function prevStep() {
-            if (currentStep > 0) {
-                currentStep--;
-                renderQuestion();
-            }
+            questionContainer.style.opacity = '0';
+            
+            setTimeout(() => {
+                if (currentIdx < questions.length) {
+                    showQuestion();
+                    questionContainer.style.opacity = '1';
+                } else {
+                    showResult();
+                }
+            }, 300);
         }
 
         function showResult() {
-            quizScreen.classList.add('hidden');
-            quizScreen.classList.remove('flex');
-            resultScreen.classList.remove('hidden');
-            resultScreen.classList.add('flex');
-            progressBarContainer.classList.add('hidden');
-
-            let scores = { zero: 0, four: 0, human: 0, forty: 0, hundred: 0 };
-            userAnswers.forEach(type => {
-                if(type) scores[type]++;
-            });
-
-            let maxType = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+            quizSection.style.display = 'none';
+            progressContainer.style.display = 'none';
             
-            const data = results[maxType];
-            document.getElementById('resultTitle').innerText = data.title;
-            document.getElementById('resultTemp').innerText = data.temp;
-            document.getElementById('resultHeadline').innerText = data.headline;
-            document.getElementById('resultDetail').innerText = data.detail;
-            document.getElementById('resultSpeaker').innerText = data.speaker;
-            document.getElementById('resultAdvice').innerText = data.advice;
+            const res = results.find(r => totalScore >= r.min && totalScore <= r.max);
 
-            const tempEl = document.getElementById('resultTemp');
-            const appEl = document.getElementById('app');
-            const titleEl = document.getElementById('resultTitle');
+            mainCard.className = `w-full max-w-3xl rounded-3xl shadow-2xl overflow-hidden min-h-[600px] flex flex-col ${res.theme}`;
 
-            const colorMap = {
-                'zero': { text: 'text-blue-700', title: 'text-blue-800', bg: 'from-blue-200' },
-                'four': { text: 'text-teal-700', title: 'text-teal-800', bg: 'from-teal-200' },
-                'human': { text: 'text-amber-600', title: 'text-amber-700', bg: 'from-amber-200' },
-                'forty': { text: 'text-orange-600', title: 'text-orange-700', bg: 'from-orange-200' },
-                'hundred': { text: 'text-red-700', title: 'text-red-800', bg: 'from-red-200' }
-            };
+            resultSection.classList.remove('hidden');
+            
+            resultSection.innerHTML = `
+                <div class="mb-2 opacity-90 text-sm md:text-base font-bold tracking-widest uppercase">Current Temperature</div>
+                
+                <div class="text-7xl md:text-9xl font-black mb-4 drop-shadow-md tracking-tighter">
+                    ${res.temp}
+                </div>
+                
+                <h2 class="text-2xl md:text-4xl font-bold mb-8 drop-shadow-sm break-keep">
+                    ${res.title}
+                </h2>
 
-            tempEl.className = `text-6xl font-black my-2 tracking-tighter break-keep ${colorMap[maxType].text}`;
-            titleEl.className = `text-xl font-bold break-keep ${colorMap[maxType].title}`;
+                <div class="glass-box p-8 md:p-10 rounded-2xl w-full mb-8 shadow-lg text-left">
+                    <p class="text-lg md:text-2xl font-medium leading-relaxed break-keep">
+                        ${res.desc}
+                    </p>
+                </div>
 
-            appEl.classList.remove('bg-white');
-            appEl.className = `max-w-md w-full rounded-2xl shadow-xl overflow-hidden min-h-[500px] flex flex-col relative border border-gray-100 bg-gradient-to-t to-white ${colorMap[maxType].bg}`;
+                <button onclick="location.reload()" 
+                    class="w-full bg-white text-gray-900 font-bold py-5 md:py-6 text-xl rounded-xl shadow-lg hover:bg-opacity-90 active:scale-95 transition-all transform">
+                    다시 테스트하기
+                </button>
+            `;
         }
 
-        function resetQuiz() {
-            currentStep = 0;
-            userAnswers = [];
-            resultScreen.classList.add('hidden');
-            resultScreen.classList.remove('flex');
-            startScreen.classList.remove('hidden');
+        showQuestion();
 
-            const appEl = document.getElementById('app');
-            appEl.className = "max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden min-h-[500px] flex flex-col relative border border-gray-100";
-        }
     </script>
 </body>
 </html>
